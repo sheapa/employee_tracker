@@ -1,0 +1,25 @@
+{
+  "name": "employee_tracker",
+  "version": "1.0.0",
+  "description": "Basic Employee Management System With Node.js.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sheapa/employee_tracker.git"
+  },
+  "author": "sheapa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sheapa/employee_tracker/issues"
+  },
+  "homepage": "https://github.com/sheapa/employee_tracker#readme",
+  "dependencies": {
+    "inquirer": "^7.1.0",
+    "mysql": "^2.18.1",
+    "path": "^0.12.7"
+  }
+}
