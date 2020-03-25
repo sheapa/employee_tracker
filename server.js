@@ -17,32 +17,61 @@ const connection = mysql.createConnection({
 // Create connection to my sql server.
 connection.connect(function(err) {
 if (err) throw err;
-runSearch();
 });
 
-// Console prompt for user data input.
-async function promptUser() {
-    let answers;
-    try {
-        answers = await inquirer.prompt({
-            type: "input",
-            name: "firstName",
-            message: "Please input new employee's primary name...",
-        });
-    } catch (error) {
-        console.log(error);
-    }
-    
-    // Send user data input to employee_db.mysql.
-   connection.query('INSERT INTO employee_data (first_name) VALUES (?)', [answers.firstName], (err, results) => {
-        if (err)
-            throw err;
-        console.log(results);
-    });
-
-    // Terminate connection to employee_db.mysql.
-    connection.end();
+function promptUser() {
+    return inquirer.prompt([
+        {
+            type: 'list',
+            name: 'menuOptions',
+            message: 'What would you like to do?',
+            choices: ['View All Data', 'View By Manager', 'Update Employee']
+        },
+        {
+            type: 'list',
+            name: '',
+            message: '',
+            when: function(answers) {
+                const selectedAnswer = answers.menuOptions;
+                console.log(selectedAnswer);
+                switch (selectedAnswer) {
+                    case 'View All Data':
+                        viewAllData();
+                        return;
+                    case 'View My Manager':
+                        viewByManager();
+                        return;
+                    case 'Update Employee':
+                        updateEmployee();
+                        return;
+                    default:
+                        return;
+                }
+            }
+        }
+    ])
 }
 
-// Initiates console user prompt.
 promptUser();
+
+function viewAllData() {
+    console.log('Viewing Data...');
+}
+
+function viewByManager() {
+    console.log('Viewing manager data...');
+}
+
+function updateEmployee() {
+    console.log('Updating employee data...');
+}
+
+// // Send user data input to employee_db.mysql.
+// connection.query('INSERT INTO employee_data (first_name) VALUES (?)', [answers.firstName], (err, results) => {
+//     if (err)
+//         throw err;
+//     console.log(results);
+// });
+
+// // Terminate connection to employee_db.mysql.
+// connection.end();
