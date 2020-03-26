@@ -23,55 +23,82 @@ function promptUser() {
     return inquirer.prompt([
         {
             type: 'list',
-            name: 'menuOptions',
+            name: 'choice',
             message: 'What would you like to do?',
-            choices: ['View All Data', 'View By Manager', 'Update Employee']
-        },
-        {
-            type: 'list',
-            name: '',
-            message: '',
-            when: function(answers) {
-                const selectedAnswer = answers.menuOptions;
-                console.log(selectedAnswer);
-                switch (selectedAnswer) {
-                    case 'View All Data':
-                        viewAllData();
-                        return;
-                    case 'View My Manager':
-                        viewByManager();
-                        return;
-                    case 'Update Employee':
-                        updateEmployee();
-                        return;
-                    default:
-                        return;
-                }
-            }
+            choices: ['View All Employees', 'Add Employee', 'Add Department', 'Add Role', 'Update Employee']
         }
     ])
+};
+
+userChoice = async (answers) => { 
+    switch (answers.choice) {
+        case 'Add Employee':
+            addEmployee();
+            return;
+        case 'Add Department':
+            addDepartment();
+            return;
+        case 'Add Role':
+            addRole();
+            return;
+        case 'View All Employees':
+            viewAll();
+            return;
+        case 'Update Employee':
+            employeeUpdate();
+            return;
+        default:
+            return;
+    }
+
+};
+
+addEmployee = () => {
+    function promptUser() {
+        return inquirer.prompt([
+            {
+              type: "input",
+              name: "firstName",
+              message: "New employee's first name?"
+            }
+        ])
+    };
+
+    let answers = await promptUser();
+    // Send user data input to employee_db.mysql.
+    connection.query('INSERT INTO employee_data (first_name) VALUES (?)', [answers.firstName], (err, results) => {
+        if (err)
+            throw err;
+        console.log(results);
+});        
+};
+
+addDepartment = () => {
+    console.log('New Department Success...')
+}
+addRole = () => {
+    console.log('New Role Success...')
 }
 
-promptUser();
-
-function viewAllData() {
-    console.log('Viewing Data...');
+viewAll = () => {
+    console.log('All Employee Data Success...')
 }
 
-function viewByManager() {
-    console.log('Viewing manager data...');
+updateEmployee = () => {
+    console.log('Employee MOD Success...')
 }
 
-function updateEmployee() {
-    console.log('Updating employee data...');
+async function init() {
+    try {
+        let answers = await promptUser();
+        console.log(answers.choice);
+        await userChoice(answers);
+    } catch(err) {
+        console.log(err);
+    }
 }
 
-// // Send user data input to employee_db.mysql.
-// connection.query('INSERT INTO employee_data (first_name) VALUES (?)', [answers.firstName], (err, results) => {
-//     if (err)
-//         throw err;
-//     console.log(results);
-// });
+init();
 
-// // Terminate connection to employee_db.mysql.
-// connection.end();
+// Terminate connection to employee_db.mysql.
+connection.end();
