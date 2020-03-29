@@ -31,11 +31,50 @@ function promptUser() {
     ])
 };
 
+
+// Employee detail questions fired by "addEmployee()" & "updateEmployee."
+function employeeQuest() {
+    return inquirer.prompt([
+        {
+            type: "input",
+            name: "firstName",
+            message: "New employee first name... "
+        },
+        {
+            type: "input",
+            name: "lastName",
+            message: "New employee last name... "
+        },
+        {
+            type: "input",
+            name: "role",
+            message: "New employee role... "
+        },
+        {
+            type: "input",
+            name: "managerId",
+            message: "New employee manager ID#... "
+        }
+    ])
+};
+
+// Select employee function.
+function selectEmployee(employeeArray) {
+    return inquirer.prompt([
+        {
+            type: 'list',
+            name: 'choice',
+            message: 'Please select employee for ROLE reassignment',
+            choices: employeeArray
+        } 
+    ])
+};
+
 // Decision tree following user selection from main menu.
 userChoice = async (answers) => { 
     switch (answers.choice) {
         case 'Add Employee':
-            createEmployee();
+            addEmployee();
             return;
         case 'Add Department':
             addDepartment();
@@ -47,7 +86,7 @@ userChoice = async (answers) => {
             viewAll();
             return;
         case 'Update Employee':
-            employeeUpdate();
+            changeEmployee();
             return;
         case 'EXIT':
             exitProgram();
@@ -58,47 +97,50 @@ userChoice = async (answers) => {
 
 };
 
-// Employee detail questions fired by "addEmployee()" & "updateEmployee."
-function employeeQuest() {
-    return inquirer.prompt([
-        {
-            type: "input",
-            name: "firstName",
-            message: "New employee first name... "
-            },
-        {
-            type: "input",
-            name: "lastName",
-            message: "New employee last name... "
-            },
-        {
-            type: "input",
-            name: "role",
-            message: "New employee role... "
-            },
-        {
-            type: "input",
-            name: "managerId",
-            message: "New employee manager ID#... "
-            }
-    ])
-};
-
 // Send new employee data to mySQL db.
 insertEmployee = async (employeeData) => {
     connection.query
-        ('INSERT INTO employee_data (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', 
-            [   
-                employeeData.firstName, 
-                employeeData.lastName,
-                employeeData.role, 
-                employeeData.managerId
-            ], 
-        (err, results) => {
-                if (err) throw err;
-        });
-    };
+    ('INSERT INTO employee_data (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', 
+    [   
+        employeeData.firstName, 
+        employeeData.lastName,
+        employeeData.role, 
+        employeeData.managerId
+    ], 
+    (err, results) => {
+        if (err) throw err;
+    });
+};
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Update employee Role
+updateEmployee = async (employeeRole) => {
+    connection.query
+    ('UPDATE employee_data SET role_id = ?', 
+    [   
+        employeeRole.role, 
+    ], 
+    (err, results) => {
+        if (err) throw err;
+    });
+}
+
+// Request full list of employees from employee_db.
+// employeeQuery = async () => {
+//     connection.query ("SELECT id, CONCAT(first_name, ' ', last_name) as name FROM employee_data", [],
+//     (err, res) => {
+//         if (err) throw err;
+//         return res;
+//     });
+// }
+employeeQuery = (mello) => {
+    connection.query ("SELECT id, CONCAT(first_name, ' ', last_name) as name FROM employee_data", [],
+    (err, res) => {
+        if (err) throw err;
+        mello(res);
+    });
+}
+// ------------------------------------------------------------------------------------------------
 
 addDepartment = () => {
     console.log('New Department Success...')
@@ -111,16 +153,13 @@ viewAll = () => {
     console.log('All Employee Data Success...')
 }
 
-updateEmployee = () => {
-    console.log('Employee MOD Success...')
-}
 exitProgram = () => {
     console.log("Thank you for choosing SHEAPA employee tracker system! Have a great day!")
     connection.end();
 }
 
-// Logic loop for managing add employee function and employee data insert.
-async function createEmployee() {
+// Logic for managing add employee function and employee data insert.
+async function addEmployee() {
     try {
         let employeeData = await employeeQuest();
         await insertEmployee(employeeData);
@@ -131,6 +170,23 @@ async function createEmployee() {
     }
 }
 
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Logic for managing update employee action.
+async function changeEmployee() {
+    try {
+        const doStuffEmployee = (employeeList) => {
+            const formattedEmployeeList = employeeList.map((employee) => {
+                return employee.name;
+            })
+            selectEmployee(formattedEmployeeList);
+        };
+        let employeeArray =  employeeQuery(doStuffEmployee);
+       
+    } catch(err) {
+        console.log(err);
+    }
+}
+// ---------------------------------------------------------------------------------------------------
 
 // Async logic loop for entire application.
 async function init() {
