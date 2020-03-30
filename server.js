@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
+var cTable = require('console.table');
 var path = require('path');
 
 // Define path to mysql. Local host port 3306.
@@ -112,7 +113,7 @@ insertEmployee = async (employeeData) => {
     });
 };
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 //  Update employee Role
 updateEmployee = async (employeeRole) => {
     connection.query
@@ -140,7 +141,14 @@ employeeQuery = (mello) => {
         mello(res);
     });
 }
-// ------------------------------------------------------------------------------------------------
+employeeQuery = (roleQuery) => {
+    connection.query ("SELECT id, CONCAT(title, ' ', id) as role FROM role_data", [],
+    (err, res) => {
+        if (err) throw err;
+        roleQuery(res);
+    });
+}
+
 
 addDepartment = () => {
     console.log('New Department Success...')
@@ -150,7 +158,7 @@ addRole = () => {
 }
 
 viewAll = () => {
-    console.log('All Employee Data Success...')
+    console.table();
 }
 
 exitProgram = () => {
@@ -170,7 +178,7 @@ async function addEmployee() {
     }
 }
 
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 // Logic for managing update employee action.
 async function changeEmployee() {
     try {
@@ -186,7 +194,6 @@ async function changeEmployee() {
         console.log(err);
     }
 }
-// ---------------------------------------------------------------------------------------------------
 
 // Async logic loop for entire application.
 async function init() {
